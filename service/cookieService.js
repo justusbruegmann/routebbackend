@@ -7,12 +7,12 @@ const {executablePath} = require("puppeteer");
  * @param password
  * @returns {Promise<{studentId: number, cookies: {traceId, JSESSIONID, schoolname}, status: string}>}
  */
-async function register(username,password, isFirstLogin) {
+async function register(username,password) {
     let browser;
     let cookies;
     try {
         //start puppeteer session
-        browser = await puppeteer.launch({headless: true, executablePath: executablePath()});
+        browser = await puppeteer.launch({headless: false, executablePath: executablePath()});
         const page = await browser.newPage();
         page.setDefaultNavigationTimeout(2 * 60 * 1000);
         //go to login page
@@ -37,7 +37,7 @@ async function register(username,password, isFirstLogin) {
         await page.waitForNavigation()
         //check if login was successful
         if (await page.title() === "WebUntis") {
-            //TODO: check if is first login then mongoDB create new user
+            // TODO: make mongoDB connection and save user data
             return {
                 "status": "success",
                 "cookies": cookies,
