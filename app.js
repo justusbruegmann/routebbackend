@@ -24,9 +24,9 @@ app.get('/', (req, res) => {
 app.listen(process.env.PORT, async () => {
     encryption.setup()
     /*let userData = {
-        "username": "bruegmajus",
-        "password": encryption.encrypt("20060707"),
-        "studentId": 35524,
+        "username": username,
+        "password": encryption.encrypt(password),
+        "studentId": studentID,
         "isAdmin": false
     }
     userDbConnection.createUser(userData);*/
