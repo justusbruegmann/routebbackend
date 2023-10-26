@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/justusbruegmann/routebbackend#readme",
   "dependencies": {
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "mongodb": "^6.1.0",

@@ -5,7 +5,7 @@ const iv = crypto.randomBytes(16);//process.env.IV//
 
 class encryption {
 //Encrypting text
-    static setup() {
+      static setup() {
         let bufferarr = bufferinput.match(/.{2}/g)
         for (let i = 0; i <  bufferarr.length; i++) {
             bufferarr[i] = parseInt(bufferarr[i], 16)
