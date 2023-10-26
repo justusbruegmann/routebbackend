@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 //const bodyParser = require("body-parser");
+
 const UserDbConnection = require("../repository/usersRepository");
 const encryption = require("../utils/hashing");
 //router.use(bodyParser.json())
@@ -23,6 +24,15 @@ router.get('/getUser' , async (req, res) => {
         let temp = await UserDbConnection.getUser({"username": username})
         let temp2 = temp.password;
         res.send(encryption.decrypt(temp2));
+
+const UserDbConnection = require("../repository/users");
+//router.use(bodyParser.json())
+//router.use(bodyParser.urlencoded({extended: false}))
+
+router.get('/getUser' , async (req, res) => {
+    const username = req.query.username;
+    if(await UserDbConnection.isAdmin(username)) {
+        res.send(await UserDbConnection.getUser({"username": username}));
     } else {
         res.sendStatus(403);
     }
@@ -30,6 +40,12 @@ router.get('/getUser' , async (req, res) => {
 
 router.get('/getUsers', async (req, res) => {
     if(appUser.isApp ) {
+=======
+
+router.get('/getUsers', async (req, res) => {
+    const username = req.query.username;
+    if(await UserDbConnection.isAdmin(username)) {
+
         res.send(UserDbConnection.getUsers());
     } else {
         res.sendStatus(403);

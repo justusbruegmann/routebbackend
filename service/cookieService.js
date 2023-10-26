@@ -10,6 +10,7 @@ const userDbConnection = require("../repository/usersRepository");
  * @returns {Promise<{studentId: number, cookies: {traceId, JSESSIONID, schoolname}, status: string}>}
  */
 async function register(username,password) {
+
     let browser;
     let cookies;
     try {
@@ -39,7 +40,6 @@ async function register(username,password) {
         await page.waitForNavigation()
         //check if login was successful
         if (await page.title() === "WebUntis") {
-            // TODO: make mongoDB connection and save user data
             let studentId = await getStudentId(cookies)
             let userData = {
                 "username": username,
@@ -93,7 +93,6 @@ async function getCookies(username) {
         let sessionid = cookies.filter((cookie) => cookie.name === 'JSESSIONID');
         let school = cookies.filter((cookie) => cookie.name === 'schoolname');
         let traceId = cookies.filter((cookie) => cookie.name === 'traceId');
-        //console.log(sessionid[0].value)
         cookies = {
             "JSESSIONID": sessionid[0].value,
             "schoolname": school[0].value,
@@ -109,13 +108,13 @@ async function getCookies(username) {
                "studentId": await getStudentId(cookies)
             }
         } else {
-            await browser.close()
             return {
                 "status": "failed",
                 "title": await page.title()
             }
         }
     } catch (e) {
+
         console.log('scrape failed', e)
     }
 }
@@ -125,12 +124,12 @@ async function getCookies(username) {
  * @returns {Promise<number>}
  */
 function getStudentId(cookies) {
+
     return new Promise((resolve) => {
         let result = 0
         let url = "https://erato.webuntis.com/WebUntis/api/public/timetable/weekly/data?elementType=5&elementId=35524&date=2023-09-11&formatId=0"
 
         let cookie = cookies.traceId + "; schoolname=" + cookies.schoolname + "; JSESSIONID=" + cookies.JSESSIONID
-        //console.log(cookie)
 
         let header = {
             "Cookie": cookie
@@ -151,6 +150,5 @@ function getStudentId(cookies) {
             })
     })
 }
-
 
 module.exports = {register, getCookies};

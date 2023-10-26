@@ -1,3 +1,4 @@
+
 const crypto = require('crypto');
 let bufferinput = process.env.KEY;
 let key  = {}; // process.env.KEY//
