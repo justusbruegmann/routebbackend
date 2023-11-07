@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer-core');
 const {executablePath} = require("puppeteer");
 const encryption = require('../utils/hashing');
-const userDbConnection = require("../repository/users");
+const userDbConnection = require("../repository/usersRepository");
 
 
 /**
@@ -14,7 +14,7 @@ async function register(username,password) {
     let cookies;
     try {
         //start puppeteer session
-        browser = await puppeteer.launch({headless: false, executablePath: executablePath()});
+        browser = await puppeteer.launch({headless: true, executablePath: executablePath()});
         const page = await browser.newPage();
         page.setDefaultNavigationTimeout(2 * 60 * 1000);
         //go to login page
@@ -58,11 +58,13 @@ async function register(username,password) {
             await browser.close()
             return {
                 "status": "failed",
-                "title": await page.title()
+                "cookies" : null,
+                "studentId": null
             }
         }
     } catch (e) {
         console.error('scrape failed', e)
+
     }
 }
 
@@ -70,12 +72,14 @@ async function getCookies(username) {
     let browser;
     let cookies;
     try {
-        browser = await puppeteer.launch({headless: false, executablePath: executablePath()})
+        browser = await puppeteer.launch({headless: true, executablePath: executablePath(), args: ['--no-sandbox']})
         const page = await browser.newPage();
         page.setDefaultNavigationTimeout(2 * 60 * 1000);
         //mongo connection
         let user = await userDbConnection.getUser({'username': username})
+        //console.log(user.password)
         let password = encryption.decrypt(user.password);
+
         await page.goto("https://erato.webuntis.com/WebUntis/?school=ghse#/basic/login");
         //login
         await page.keyboard.type(user.username)
@@ -89,6 +93,7 @@ async function getCookies(username) {
         let sessionid = cookies.filter((cookie) => cookie.name === 'JSESSIONID');
         let school = cookies.filter((cookie) => cookie.name === 'schoolname');
         let traceId = cookies.filter((cookie) => cookie.name === 'traceId');
+        //console.log(sessionid[0].value)
         cookies = {
             "JSESSIONID": sessionid[0].value,
             "schoolname": school[0].value,
@@ -101,7 +106,7 @@ async function getCookies(username) {
             return {
                 "status": "success",
                 "cookies": cookies,
-                "studentId": await getStudentId(cookies)
+               "studentId": await getStudentId(cookies)
             }
         } else {
             await browser.close()
@@ -109,8 +114,6 @@ async function getCookies(username) {
                 "status": "failed",
                 "title": await page.title()
             }
-
-
         }
     } catch (e) {
         console.log('scrape failed', e)
@@ -127,6 +130,7 @@ function getStudentId(cookies) {
         let url = "https://erato.webuntis.com/WebUntis/api/public/timetable/weekly/data?elementType=5&elementId=35524&date=2023-09-11&formatId=0"
 
         let cookie = cookies.traceId + "; schoolname=" + cookies.schoolname + "; JSESSIONID=" + cookies.JSESSIONID
+        //console.log(cookie)
 
         let header = {
             "Cookie": cookie

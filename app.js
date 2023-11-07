@@ -2,18 +2,20 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
 const app = express();
-//const {fetchService} = require("./utils/fetchService");
+const encryption = require("./utils/hashing");
+const {getRoute} = require("./service/mapsService")
 
+//const {fetchService} = require("./utils/fetchService");
 // declarerate users route
 const usersRoute = require("./routes/usersRoute");
 const timetableRoute = require("./routes/getTimetableRoute");
-const encryption = require("./utils/hashing");
-const userDbConnection = require("./repository/users");
-const {decrypt} = require("dotenv");
+const mapsRoute = require("./routes/mapsRoute")
+
 
 // activate the Users Route
 app.use("/users", usersRoute);
 app.use("/timetable", timetableRoute);
+app.use("/maps",mapsRoute)
 
 app.get('/', (req, res) => {
 
@@ -22,7 +24,9 @@ app.get('/', (req, res) => {
 
 
 app.listen(process.env.PORT, async () => {
+    //emitter.setMaxListeners(50)
     encryption.setup()
+    //server
     /*let userData = {
         "username": username,
         "password": encryption.encrypt(password),
@@ -30,6 +34,7 @@ app.listen(process.env.PORT, async () => {
         "isAdmin": false
     }
     userDbConnection.createUser(userData);*/
-
+    //console.log(await getCookies("bruegmajus"))
+    console.log(getRoute("BICYCLE"))
     console.log(`Example app listening at http://localhost:${process.env.PORT}`);
 });
