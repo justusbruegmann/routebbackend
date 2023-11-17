@@ -1,10 +1,10 @@
-const {getCookies} = require('../service/cookieService');
+const CookieService = require('../service/cookieService');
 const utils = require("../utils/utils")
 
 
-function fetchTimetable(username) {
+function fetchTimetable(username, password) {
     return new Promise(async (resolve) => {
-        let cookies = (await getCookies(username))
+        let cookies = (await CookieService.getCookies(username,password))
         let studentId = cookies.studentId
         cookies = cookies.cookies
         let date = utils.getDate()

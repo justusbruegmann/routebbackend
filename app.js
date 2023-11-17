@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
 const app = express();
-const encryption = require("./utils/hashing");
+const encryption = require("./utils/encryption");
 const {getRoute} = require("./service/mapsService")
 
 //const {fetchService} = require("./utils/fetchService");
@@ -27,14 +27,5 @@ app.listen(process.env.PORT, async () => {
     //emitter.setMaxListeners(50)
     encryption.setup()
     //server
-    /*let userData = {
-        "username": username,
-        "password": encryption.encrypt(password),
-        "studentId": studentID,
-        "isAdmin": false
-    }
-    userDbConnection.createUser(userData);*/
-    //console.log(await getCookies("bruegmajus"))
-    console.log(getRoute("BICYCLE"))
     console.log(`Example app listening at http://localhost:${process.env.PORT}`);
 });
