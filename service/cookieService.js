@@ -47,7 +47,7 @@ class CookieService {
                 return {
                     "status": "success",
                     "cookies": cookies,
-                    "studentId": await this.getStudentId(cookies),
+                    "studentId": studentId,
                     "apiKey": apiKey
                 }
             } else {

@@ -1,10 +1,9 @@
-const {fetchTimetable} = require('./fetchService');
 const utils = require('../utils/utils')
 
 class timetableService {
-    static async cleanTimetable(username,password) {
+    static async cleanTimetable(timetable) {
         return new Promise(async (resolve) => {
-            let data = await fetchTimetable(username, password);
+            let data = timetable
 
             const idList = data.map(item => ({
                 id: item.id,
@@ -23,9 +22,10 @@ class timetableService {
         })
     }
 
-    static async getFirstLesson(username, password) {
+    static async getFirstLesson(timetable) {
         return new Promise(async (resolve) => {
-            let data = await fetchTimetable(username, password);
+            let data = timetable
+            //TODo change back to comment done
             let dateFormated = utils.getDate().replaceAll("-","")
             dateFormated = Number(dateFormated)
             console.log(dateFormated)
@@ -50,6 +50,5 @@ class timetableService {
         })
     }
 }
-
 
 module.exports = timetableService

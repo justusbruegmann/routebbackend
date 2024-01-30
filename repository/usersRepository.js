@@ -33,6 +33,7 @@ class UserDbConnection {
      * @param {String} password
      * @returns {object}
      **/
+
     static getUser(username, password) {
         return new Promise((resolve, reject) => {
             MongoClient.connect(url, (err) => {
@@ -49,6 +50,33 @@ class UserDbConnection {
                         resolve("user not found");
                     } else {
                         resolve(403);
+                    }
+                    //console.log("1 document found");
+
+                })
+            })
+        })
+    }
+
+    /**
+     * @param {String} username
+     * @returns {object}
+     **/
+
+    static getStudentId(username) {
+        return new Promise((resolve, reject) => {
+            MongoClient.connect(url, (err) => {
+                if (err) reject("error");
+            }).then(client => {
+                const dbconnect = client.db("routeplaner");
+                dbconnect.collection("users").findOne({"username": username}, function (err) {
+                    if (err) reject("error");
+                }).then(async r => {
+                    await client.close();
+                    if (typeof r === "null" || typeof r === "undefined") {
+                        resolve("user not found");
+                    } else {
+                        resolve(Number(r.studentId));
                     }
                     //console.log("1 document found");
 
@@ -131,7 +159,6 @@ class UserDbConnection {
             })
         })
     }
-    // FIXME: change alot of stuff test needed in every endpoint from timetable and user
     static async updateApiKey(username, apikey) {
         return new Promise(async (resolve, reject) => {
             MongoClient.connect(url, function (err) {

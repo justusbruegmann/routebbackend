@@ -1,7 +1,7 @@
 const Utils = require("../utils/utils")
 
 
-function getRoute(ptravelMode) {
+function getRoute(ptravelMode, ptime, plocation) {
     return new Promise(async (resolve, reject) => {
         let travelMode = ptravelMode.toUpperCase();
         let requestBody;
@@ -9,12 +9,7 @@ function getRoute(ptravelMode) {
             console.log(Utils.formatTime())
              requestBody = {
                 "origin": {
-                    "location": {
-                        "latLng": {
-                            "latitude": 48.120010,
-                            "longitude": 7.732870
-                        }
-                    }
+                    "location": plocation
                 },
                 "destination": {
                     "location": {
@@ -25,7 +20,7 @@ function getRoute(ptravelMode) {
                     }
                 },
                 "travelMode": "TRANSIT",
-                "arrivalTime": Utils.formatTime(),
+                "arrivalTime": ptime,
                 "computeAlternativeRoutes": false,
                 "routeModifiers": {
                     "avoidTolls": false,
@@ -38,12 +33,7 @@ function getRoute(ptravelMode) {
         } else if(travelMode === "DRIVE") {
              requestBody = {
                 "origin": {
-                    "location": {
-                        "latLng": {
-                            "latitude": 48.120010,
-                            "longitude": 7.732870
-                        }
-                    }
+                    "location": plocation
                 },
                 "destination": {
                     "location": {
@@ -66,12 +56,8 @@ function getRoute(ptravelMode) {
         } else {
             requestBody = {
                 "origin": {
-                    "location": {
-                        "latLng": {
-                            "latitude": 48.120010,
-                            "longitude": 7.732870
-                        }
-                    }
+                    "location": plocation
+
                 },
                 "destination": {
                     "location": {
