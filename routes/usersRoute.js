@@ -1,26 +1,45 @@
 const express = require('express');
 const router = express.Router();
 //const bodyParser = require("body-parser");
-const UserDbConnection = require("../repository/users");
+const UserDbConnection = require("../repository/usersRepository");
+const encryption = require("../utils/encryption");
+const CookieService = require('../service/cookieService')
 //router.use(bodyParser.json())
 //router.use(bodyParser.urlencoded({extended: false}))
+//creation of an user that IS the app to add security
 
-router.get('/getUser' , async (req, res) => {
-    const username = req.query.username;
-    if(await UserDbConnection.isAdmin(username)) {
-        res.send(await UserDbConnection.getUser({"username": username}));
+router.post('/user', async (req,res) => {
+    //get password and username of user
+    let username = req.query.username;
+    let password = req.query.password;
+    //if not an valid input send bad request to the frontend
+    if (typeof username === "undefined" && typeof password === "undefined") {
+        res.sendStatus(400)
+    }
+    // look if the username and password is an valid account on the GHSE untis or there is an error
+    const data = await CookieService.register(username,password)
+    if (data.status === "success") {
+        // create an user in the Database
+        await UserDbConnection.createUser({"username" : username, "password" : encryption.encrypt(password)}, data.apiKey)
+    } else if (data.status === "failed") {
+        res.sendStatus(403)
     } else {
-        res.sendStatus(403);
+        res.sendStatus(500)
     }
 })
 
-
-router.get('/getUsers', async (req, res) => {
-    const username = req.query.username;
-    if(await UserDbConnection.isAdmin(username)) {
-        res.send(UserDbConnection.getUsers());
+router.get('/login', async (req, res) => {
+    let username = req.query.username;
+    let password = req.query.password;
+    if (typeof username === "undefined" && typeof password === "undefined") {
+        res.sendStatus(400)
+    }
+    let data = await UserDbConnection.getUser(username,password)
+    if (data.username === username) {
+        let cookies = await CookieService.getCookies(username,password);
+        res.send(cookies)
     } else {
-        res.sendStatus(403);
+        res.sendStatus(403)
     }
 })
 
