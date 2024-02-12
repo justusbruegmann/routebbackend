@@ -16,7 +16,7 @@ class CookieService {
             //start puppeteer session / heedless browser
             browser = await puppeteer.launch({headless: true, executablePath: executablePath()});
             const page = await browser.newPage();
-            page.setDefaultNavigationTimeout(2 * 60 * 1000);
+            page.setDefaultNavigationTimeout(60 * 1000);
             //go to login page
             await page.goto("https://erato.webuntis.com/WebUntis/?school=ghse#/basic/login");
             //login simulate a real user
@@ -27,6 +27,7 @@ class CookieService {
             //retrieve cookies over google dev session because traceId is not an http cookie which you could get from the framework it self
             const client = await page.target().createCDPSession();
             cookies = (await client.send('Network.getAllCookies')).cookies;
+
             //filter cookies to get them in an right format
             let sessionid = cookies.filter((cookie) => cookie.name === 'JSESSIONID');
             let school = cookies.filter((cookie) => cookie.name === 'schoolname');
@@ -38,9 +39,13 @@ class CookieService {
             }
             //wait if the login is succesful
             await page.waitForNavigation()
+            await page.waitForTimeout(300)
+            let bearerToken = await page.evaluate(() => { return localStorage.getItem("tokenString")})
+            bearerToken = "Bearer " + bearerToken
+            //console.log(bearerToken)
             //check if login was successful
             if (await page.title() === "WebUntis") {
-                let studentId = await this.getStudentId(cookies)
+                let studentId = await this.getStudentId(bearerToken)
                 await browser.close()
                 let apiKey = await ApikeyService.updateApiKey(username)
                 return {
@@ -70,7 +75,8 @@ class CookieService {
             //start the heedless browser to get the cookies
             browser = await puppeteer.launch({headless: true, executablePath: executablePath(), args: ['--no-sandbox']})
             const page = await browser.newPage();
-            page.setDefaultNavigationTimeout(2 * 60 * 1000);
+            //just dumb shit that Webstorm doesnt show that as duplicated code
+            page.setDefaultNavigationTimeout(59 * 1000 + 1000);
 
             await page.goto("https://erato.webuntis.com/WebUntis/?school=ghse#/basic/login");
             //login
@@ -91,6 +97,9 @@ class CookieService {
                 "traceId": traceId[0].value
             }
             await page.waitForNavigation()
+            await page.waitForTimeout(300)
+            let bearerToken = await page.evaluate(() => { return localStorage.getItem("tokenString")})
+            bearerToken = "Bearer " + bearerToken
             //check if login was successful
             if (await page.title() === "WebUntis") {
                 await browser.close()
@@ -98,7 +107,7 @@ class CookieService {
                 return {
                     "status": "success",
                     "cookies": cookies,
-                    "studentId": await this.getStudentId(cookies),
+                    "studentId": await this.getStudentId(bearerToken),
                     "apiKey": apiKey
                 }
             } else {
@@ -119,15 +128,13 @@ class CookieService {
      * @param cookies
      * @returns {Promise<number>}
      */
-    static async getStudentId(cookies) {
+    static async getStudentId(token) {
         return new Promise((resolve) => {
             let result = 0
-            let url = "https://erato.webuntis.com/WebUntis/api/public/timetable/weekly/data?elementType=5&elementId=35524&date=2023-09-11&formatId=0"
-
-            let cookie = cookies.traceId + "; schoolname=" + cookies.schoolname + "; JSESSIONID=" + cookies.JSESSIONID
+            let url = "https://erato.webuntis.com/WebUntis/api/rest/view/v1/app/data"
 
             let header = {
-                "Cookie": cookie
+                "Authorization": token
             }
             // featch data from webuntis to get studentID
             fetch(url, {method: 'GET', headers: header}).then(res => {
@@ -135,7 +142,8 @@ class CookieService {
                 return res.json()
             })
                 .then(json => {
-                    result = json.data.result.data.elementPeriods//['35524']
+                    result = json.user.person.id
+                    console.log(result)
                     result = Object.keys(result)
                     result = JSON.stringify(result)
                     result = result.replace(/\D/g, "")
