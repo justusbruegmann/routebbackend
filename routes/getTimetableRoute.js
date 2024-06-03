@@ -47,7 +47,7 @@ router.get('/firstLesson', async (req, res) => {
         if (timetable.status === 500) {
             res.sendStatus(500)
         } else {
-            //the funtion getFirstLesson return only the first lesson of the current day
+            //the function getFirstLesson return only the first lesson of the current day
             timetable = await timetableService.getFirstLesson(timetable)
             res.send(timetable)
         }

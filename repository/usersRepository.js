@@ -7,7 +7,7 @@ class UserDbConnection {
     /**
      * this funtion is the DB connection for creating a User which the whole data is defined in the route
      * @param {object} data,
-     * @param {String} apikey
+     * @param {object} apikey
      *
      **/
     static async createUser(data , apikey) {

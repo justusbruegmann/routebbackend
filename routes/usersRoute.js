@@ -10,8 +10,8 @@ const CookieService = require('../service/cookieService')
 
 router.post('/user', async (req,res) => {
     //get password and username of user
-    let username = req.query.username;
-    let password = req.query.password;
+    let username = req.header("username");
+    let password = req.header("password");
     //if not an valid input send bad request to the frontend
     if (typeof username === "undefined" && typeof password === "undefined") {
         res.sendStatus(400)
@@ -20,7 +20,8 @@ router.post('/user', async (req,res) => {
     const data = await CookieService.register(username,password)
     if (data.status === "success") {
         // create an user in the Database
-        await UserDbConnection.createUser({"username" : username, "password" : encryption.encrypt(password)}, data.apiKey)
+        await UserDbConnection.createUser({"username" : username, "password" : encryption.encrypt(password), "studentId": data.studentId }, data.apiKey)
+        res.send(data);
     } else if (data.status === "failed") {
         res.sendStatus(403)
     } else {
@@ -29,8 +30,8 @@ router.post('/user', async (req,res) => {
 })
 
 router.get('/login', async (req, res) => {
-    let username = req.query.username;
-    let password = req.query.password;
+    let username = req.header("username");
+    let password = req.header("password");
     if (typeof username === "undefined" && typeof password === "undefined") {
         res.sendStatus(400)
     }

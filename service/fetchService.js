@@ -4,15 +4,14 @@ const utils = require("../utils/utils")
 function fetchTimetable(cookies,studentId) {
     return new Promise(async (resolve) => {
         // get the timetable
+        //TODO: change date back
         let date = utils.getDate()
         let result;
-        let url = "https://erato.webuntis.com/WebUntis/api/public/timetable/weekly/data?elementType=5&elementId="+ studentId + "&date="+date +"&formatId=0"
+        let url = "https://erato.webuntis.com/WebUntis/api/public/timetable/weekly/data?elementType=5&elementId="+ studentId + "&date="+date+"&formatId=0"
        // console.log(url)
-        const userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; AS; rv:11.0) like Gecko';
 
         let header = {
-            "Cookie": cookies,
-            'User-Agent' : userAgent
+            "Cookie": cookies
         }
         // fetch data from webuntis to get studentID
         const response = await fetch(url, {method: 'GET', headers : header})

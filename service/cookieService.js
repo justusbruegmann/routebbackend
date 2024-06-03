@@ -14,7 +14,7 @@ class CookieService {
         let cookies;
         try {
             //start puppeteer session / heedless browser
-            browser = await puppeteer.launch({headless: true, executablePath: executablePath()});
+            browser = await puppeteer.launch({headless: true, executablePath: executablePath(), args: ['--no-sandbox']});
             const page = await browser.newPage();
             page.setDefaultNavigationTimeout(60 * 1000);
             //go to login page
@@ -39,20 +39,22 @@ class CookieService {
             }
             //wait if the login is succesful
             await page.waitForNavigation()
-            await page.waitForTimeout(300)
+            await page.waitForTimeout(500)
             let bearerToken = await page.evaluate(() => { return localStorage.getItem("tokenString")})
             bearerToken = "Bearer " + bearerToken
             //console.log(bearerToken)
             //check if login was successful
             if (await page.title() === "WebUntis") {
                 let studentId = await this.getStudentId(bearerToken)
+                let displayName = await this.getDisplayName(bearerToken)
                 await browser.close()
-                let apiKey = await ApikeyService.updateApiKey(username)
+                let apiKey = await ApikeyService.createApiKey(username)
                 return {
                     "status": "success",
                     "cookies": cookies,
                     "studentId": studentId,
-                    "apiKey": apiKey
+                    "apiKey": apiKey,
+                    "displayName": displayName
                 }
             } else {
                 await browser.close()
@@ -142,14 +144,34 @@ class CookieService {
                 return res.json()
             })
                 .then(json => {
+                    //let temp = json.user.person.displayName
                     result = json.user.person.id
                     console.log(result)
-                    result = Object.keys(result)
-                    result = JSON.stringify(result)
-                    result = result.replace(/\D/g, "")
                     result = Number(result)
+                    console.log(typeof result)
+                    console.log(result)
 
                     resolve(result);
+                })
+        })
+    }
+
+    static async getDisplayName(token) {
+        return new Promise((resolve) => {
+            let result = 0
+            let url = "https://erato.webuntis.com/WebUntis/api/rest/view/v1/app/data"
+
+            let header = {
+                "Authorization": token
+            }
+            // featch data from webuntis to get studentID
+            fetch(url, {method: 'GET', headers: header}).then(res => {
+                //console.log(res.json())
+                return res.json()
+            })
+                .then(json => {
+                    let temp = json.user.person.displayName
+                    resolve(temp);
                 })
         })
     }

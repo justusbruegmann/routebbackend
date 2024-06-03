@@ -16,7 +16,7 @@ router.get('/getRoute', async (req, res) => {
     plat = parseFloat(plat)
     plong = parseFloat(plong)
     let time;
-    //not for every Travalmode an time is needed so we put one of 0 as the standart
+    //not for every Travalmode an time is needed so we put one of 0 as the standard
     if (ptime === undefined) {
         time = Utils.formatTime(0,0)
     } else {

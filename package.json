@@ -1,6 +1,6 @@
 {
   "name": "routebbackend",
-  "version": "0.0.1",
+  "version": "1.4.0",
   "description": "Webuntis routeplanner api and mongoDb sessions aswell as a purperteer seesion",
   "main": "app.js",
   "scripts": {
